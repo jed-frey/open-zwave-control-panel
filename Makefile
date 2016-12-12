@@ -91,9 +91,8 @@ dist: ozwcp
 	rm -f ozwcp.tar.gz
 	tar -c --exclude=".svn" --exclude=".git" -hvzf ozwcp.tar.gz ozwcp config/ cp.html cp.js openzwavetinyicon.png README
 
-.PHONY debian_deps
+.PHONY: debian_deps
 debian_deps: /usr/include/microhttpd.h /usr/include/libudev.h
-
 
 /usr/include/microhttpd.h:
 	sudo apt-get install -y libmicrohttpd-dev
