@@ -21,7 +21,7 @@ DEBUG_LDFLAGS	:= -g
 CFLAGS	:= -c $(DEBUG_CFLAGS)
 LDFLAGS	:= $(DEBUG_LDFLAGS)
 
-OPENZWAVE := ../open-zwave/
+OPENZWAVE := ./open-zwave/
 LIBMICROHTTPD := -L/usr/local/lib/ -lmicrohttpd
 
 INCLUDES := -I $(OPENZWAVE)/cpp/src -I $(OPENZWAVE)/cpp/src/command_classes/ \
@@ -32,17 +32,32 @@ INCLUDES := -I $(OPENZWAVE)/cpp/src -I $(OPENZWAVE)/cpp/src/command_classes/ \
 # Remove comment below for gnutls support
 #GNUTLS := -lgnutls
 
-# for Linux uncomment out next three lines
-LIBZWAVE := $(wildcard $(OPENZWAVE)/*.a)
-#LIBUSB := -ludev
-#LIBS := $(LIBZWAVE) $(GNUTLS) $(LIBMICROHTTPD) -pthread $(LIBUSB) -lresolv
+# OS Dependent flag settings
+ifeq ($(OS),Windows_NT)
+    uname_S := Windows
+else
+    uname_S := $(shell uname -s)
+endif
 
-# for Mac OS X comment out above 2 lines and uncomment next 5 lines
-#ARCH := -arch i386 -arch x86_64
-#CFLAGS += $(ARCH)
-#LIBZWAVE := $(wildcard $(OPENZWAVE)/cpp/lib/mac/*.a)
-LIBUSB := -framework IOKit -framework CoreFoundation
-LIBS := $(LIBZWAVE) $(GNUTLS) $(LIBMICROHTTPD) -pthread $(LIBUSB) $(ARCH) -lresolv
+# Linux
+ifeq ($(uname_S), Linux)
+	LIBZWAVE := $(OPENZWAVE)/libopenzwave.a
+	LIBUSB := -ludev
+	LIBS := $(LIBZWAVE) $(GNUTLS) $(LIBMICROHTTPD) -pthread $(LIBUSB) -lresolv
+endif
+# OS X
+ifeq ($(uname_S), Darwin)
+	ARCH := -arch i386 -arch x86_64
+	CFLAGS += $(ARCH)
+	LIBZWAVE := $(wildcard $(OPENZWAVE)/cpp/lib/mac/libopenzwave.a)
+	LIBUSB := -framework IOKit -framework CoreFoundation
+	LIBS := $(LIBZWAVE) $(GNUTLS) $(LIBMICROHTTPD) -pthread $(LIBUSB) $(ARCH) -lresolv
+endif
+# Windows
+ifeq ($(uname_S), Windows)
+	@echo Windows builds not supported.
+	@exit 1
+endif
 
 %.o : %.cpp
 	$(CXX) $(CFLAGS) $(INCLUDES) -o $@ $<
@@ -50,14 +65,16 @@ LIBS := $(LIBZWAVE) $(GNUTLS) $(LIBMICROHTTPD) -pthread $(LIBUSB) $(ARCH) -lreso
 %.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
 
-all: defs ozwcp
+all: $(LIBZWAVE) ozwcp
 
+open-zwave:
+	git clone https://github.com/OpenZWave/open-zwave.git
 
-defs:
-ifeq ($(LIBZWAVE),)
-	@echo Please edit the Makefile to avoid this error message.
-	@exit 1
-endif
+$(LIBZWAVE): open-zwave
+	$(MAKE) -C $(OPENZWAVE)
+
+config: open-zwave
+	cp -R open-zwave/config ./
 
 ozwcp.o: ozwcp.h webserver.h $(OPENZWAVE)/cpp/src/Options.h $(OPENZWAVE)/cpp/src/Manager.h \
 	$(OPENZWAVE)/cpp/src/Node.h $(OPENZWAVE)/cpp/src/Group.h \
@@ -72,7 +89,8 @@ ozwcp:	ozwcp.o webserver.o zwavelib.o $(LIBZWAVE)
 
 dist:	ozwcp
 	rm -f ozwcp.tar.gz
-	tar -c --exclude=".svn" -hvzf ozwcp.tar.gz ozwcp config/ cp.html cp.js openzwavetinyicon.png README
+	tar -c --exclude=".svn" --exclude=".git" -hvzf ozwcp.tar.gz ozwcp config/ cp.html cp.js openzwavetinyicon.png README
 
 clean:
 	rm -f ozwcp *.o
+	rm -rf $(OPENZWAVE)

@@ -335,7 +335,7 @@ const char *Webserver::SendTopoResponse (struct MHD_Connection *conn, const char
 		}
 	}
 	strncpy(fntemp, "/tmp/ozwcp.topo.XXXXXX", sizeof(fntemp));
-	fn = mktemp(fntemp);
+	fn = mkstemp(fntemp);
 	if (fn == NULL)
 		return EMPTY;
 	strncat(fntemp, ".xml", sizeof(fntemp));
