@@ -65,7 +65,7 @@ endif
 %.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
 
-all: $(LIBZWAVE) ozwcp
+all: ozwcp
 
 open-zwave:
 	git clone https://github.com/OpenZWave/open-zwave.git
@@ -84,7 +84,7 @@ webserver.o: webserver.h ozwcp.h $(OPENZWAVE)/cpp/src/Options.h $(OPENZWAVE)/cpp
 	$(OPENZWAVE)/cpp/src/Node.h $(OPENZWAVE)/cpp/src/Group.h \
 	$(OPENZWAVE)/cpp/src/Notification.h $(OPENZWAVE)/cpp/src/platform/Log.h
 
-ozwcp:	ozwcp.o webserver.o zwavelib.o $(LIBZWAVE)
+ozwcp:	$(LIBZWAVE) ozwcp.o webserver.o zwavelib.o
 	$(LD) -o $@ $(LDFLAGS) ozwcp.o webserver.o zwavelib.o $(LIBS)
 
 dist:	ozwcp
