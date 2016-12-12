@@ -84,13 +84,26 @@ webserver.o: webserver.h ozwcp.h $(OPENZWAVE)/cpp/src/Options.h $(OPENZWAVE)/cpp
 	$(OPENZWAVE)/cpp/src/Node.h $(OPENZWAVE)/cpp/src/Group.h \
 	$(OPENZWAVE)/cpp/src/Notification.h $(OPENZWAVE)/cpp/src/platform/Log.h
 
-ozwcp:	$(LIBZWAVE) ozwcp.o webserver.o zwavelib.o
+ozwcp:	$(LIBZWAVE) config debian_deps ozwcp.o webserver.o zwavelib.o
 	$(LD) -o $@ $(LDFLAGS) ozwcp.o webserver.o zwavelib.o $(LIBS)
 
-dist:	ozwcp
+dist: ozwcp
 	rm -f ozwcp.tar.gz
 	tar -c --exclude=".svn" --exclude=".git" -hvzf ozwcp.tar.gz ozwcp config/ cp.html cp.js openzwavetinyicon.png README
+
+.PHONY debian_deps
+debian_deps: /usr/include/microhttpd.h /usr/include/libudev.h
+
+
+/usr/include/microhttpd.h:
+	sudo apt-get install -y libmicrohttpd-dev
+
+/usr/include/libudev.h:
+	sudo apt-get install -y libudev-dev
 
 clean:
 	rm -f ozwcp *.o
 	rm -rf $(OPENZWAVE)
+
+run: ozwcp
+	./ozwcp -p 5555
