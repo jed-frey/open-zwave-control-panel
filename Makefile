@@ -6,11 +6,13 @@
 
 .SUFFIXES:	.cpp .o .a .s
 
-CC     := $(CROSS_COMPILE)gcc
-CXX    := $(CROSS_COMPILE)g++
-LD     := $(CROSS_COMPILE)g++
-AR     := $(CROSS_COMPILE)ar rc
-RANLIB := $(CROSS_COMPILE)ranlib
+GCC_SUFFIX:=47
+
+CC     := $(CROSS_COMPILE)gcc${GCC_SUFFIX}
+CXX    := $(CROSS_COMPILE)g++${GCC_SUFFIX}
+LD     := $(CROSS_COMPILE)g++${GCC_SUFFIX}
+AR     := $(CROSS_COMPILE)gcc-ar${GCC_SUFFIX} rc
+RANLIB := $(CROSS_COMPILE)gcc-ranlib${GCC_SUFFIX}
 
 DEBUG_CFLAGS    := -Wall -Wno-unknown-pragmas -Wno-inline -Wno-format -g -DDEBUG -ggdb -O0
 RELEASE_CFLAGS  := -Wall -Wno-unknown-pragmas -Werror -Wno-format -O3 -DNDEBUG
@@ -19,15 +21,15 @@ DEBUG_LDFLAGS	:= -g
 
 # Change for DEBUG or RELEASE
 CFLAGS	:= -c $(DEBUG_CFLAGS)
-LDFLAGS	:= $(DEBUG_LDFLAGS)
+LDFLAGS	:= $(DEBUG_LDFLAGS) -Wl,-rpath=/usr/local/lib/gcc47
 
-OPENZWAVE := ./open-zwave/
-LIBMICROHTTPD := -L/usr/local/lib/ -lmicrohttpd
+OPENZWAVE := ./open-zwave
+LIBMICROHTTPD := -L/usr/local/lib -lmicrohttpd
 
-INCLUDES := -I $(OPENZWAVE)/cpp/src -I $(OPENZWAVE)/cpp/src/command_classes/ \
-	-I $(OPENZWAVE)/cpp/src/value_classes/ -I $(OPENZWAVE)/cpp/src/platform/ \
-	-I $(OPENZWAVE)/cpp/src/platform/unix -I $(OPENZWAVE)/cpp/tinyxml/ \
-	-I /usr/local/include/
+INCLUDES := -I$(OPENZWAVE)/cpp/src -I$(OPENZWAVE)/cpp/src/command_classes \
+	-I$(OPENZWAVE)/cpp/src/value_classes -I$(OPENZWAVE)/cpp/src/platform \
+	-I$(OPENZWAVE)/cpp/src/platform/unix -I$(OPENZWAVE)/cpp/tinyxml \
+	-I/usr/local/include -I$(OPENZWAVE)
 
 # Remove comment below for gnutls support
 #GNUTLS := -lgnutls
@@ -37,6 +39,13 @@ ifeq ($(OS),Windows_NT)
     uname_S := Windows
 else
     uname_S := $(shell uname -s)
+endif
+
+# FreeBSD
+ifeq ($(uname_S), FreeBSD)
+        LIBZWAVE := $(OPENZWAVE)/libopenzwave.a
+        LIBUSB := -ludev -lusb
+        LIBS := $(LIBZWAVE) $(GNUTLS) $(LIBMICROHTTPD) -pthread $(LIBUSB)
 endif
 
 # Linux
@@ -68,7 +77,7 @@ endif
 all: ozwcp
 
 open-zwave:
-	git clone https://github.com/OpenZWave/open-zwave.git
+	git clone --depth=1 https://github.com/OpenZWave/open-zwave.git
 
 $(LIBZWAVE): open-zwave
 	$(MAKE) -C $(OPENZWAVE)
@@ -84,7 +93,10 @@ webserver.o: webserver.h ozwcp.h $(OPENZWAVE)/cpp/src/Options.h $(OPENZWAVE)/cpp
 	$(OPENZWAVE)/cpp/src/Node.h $(OPENZWAVE)/cpp/src/Group.h \
 	$(OPENZWAVE)/cpp/src/Notification.h $(OPENZWAVE)/cpp/src/platform/Log.h
 
-ozwcp:	$(LIBZWAVE) config debian_deps ozwcp.o webserver.o zwavelib.o
+ozwcp:	$(LIBZWAVE) ozwcp.o webserver.o zwavelib.o
+	$(LD) -o $@ $(LDFLAGS) ozwcp.o webserver.o zwavelib.o $(LIBS)
+
+ozwcp2:
 	$(LD) -o $@ $(LDFLAGS) ozwcp.o webserver.o zwavelib.o $(LIBS)
 
 dist: ozwcp
