@@ -17,8 +17,8 @@ Where ```NAME```, ```IFACE```, ```PREFIX```, and ```IP``` are jail name, network
 
 Pass through /dev so OZW can access the USB devices:
 
-   iocage set allow_mount_devfs=1 devfs_ruleset=6 ozw
-   iocage restart ozw
+    iocage set allow_mount_devfs=1 devfs_ruleset=6 ozw
+    iocage restart ozw
 
 ## Jail setup
 
