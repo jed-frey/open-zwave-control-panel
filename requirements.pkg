@@ -1,0 +1,5 @@
+libmicrohttpd
+gmake
+gcc47
+libudev-devd
+
