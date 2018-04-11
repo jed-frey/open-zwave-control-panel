@@ -2,7 +2,7 @@
 
 Instructions for getting [```OpenZWave```](http://www.openzwave.com/) and control panel running inside of FreeBSD and FreeNAS jails. Precursor to getting [Home Assistant](https://www.home-assistant.io/) running inside of a jail.
 
-Requires a small amount of command line knowledge. There is no one liner that is in vogue right now like: ```curl -sSL https://install.pi-hole.net | bash```. Read and coprehend the commands so I don't slip in a ```rm -rf```.
+Requires a small amount of command line knowledge. There is no one liner that is in vogue right now like: ```curl -sSL https://install.pi-hole.net | bash```. Read and comprehend the commands so I don't slip in a ```rm -rf```.
 
 ## ```iocage``` setup
 
