@@ -6,7 +6,7 @@
 
 .SUFFIXES:	.cpp .o .a .s
 
-GCC_SUFFIX:=47
+GCC_SUFFIX?=48
 
 CC     := $(CROSS_COMPILE)gcc${GCC_SUFFIX}
 CXX    := $(CROSS_COMPILE)g++${GCC_SUFFIX}
@@ -14,14 +14,14 @@ LD     := $(CROSS_COMPILE)g++${GCC_SUFFIX}
 AR     := $(CROSS_COMPILE)gcc-ar${GCC_SUFFIX} rc
 RANLIB := $(CROSS_COMPILE)gcc-ranlib${GCC_SUFFIX}
 
-DEBUG_CFLAGS    := -Wall -Wno-unknown-pragmas -Wno-inline -Wno-format -g -DDEBUG -ggdb -O0
-RELEASE_CFLAGS  := -Wall -Wno-unknown-pragmas -Werror -Wno-format -O3 -DNDEBUG
+DEBUG_CFLAGS    += -Wall -Wno-unknown-pragmas -Wno-inline -Wno-format -g -DDEBUG -ggdb -O0
+RELEASE_CFLAGS  += -Wall -Wno-unknown-pragmas -Werror -Wno-format -O3 -DNDEBUG
 
-DEBUG_LDFLAGS	:= -g
+DEBUG_LDFLAGS	+= -g
 
 # Change for DEBUG or RELEASE
 CFLAGS	:= -c $(DEBUG_CFLAGS)
-LDFLAGS	:= $(DEBUG_LDFLAGS) -Wl,-rpath=/usr/local/lib/gcc47
+LDFLAGS	:= $(DEBUG_LDFLAGS) -Wl,-rpath=/usr/local/lib/gcc${GCC_SUFFIX}
 
 OPENZWAVE := ./open-zwave
 LIBMICROHTTPD := -L/usr/local/lib -lmicrohttpd
