@@ -6,7 +6,7 @@
 
 .SUFFIXES:	.cpp .o .a .s
 
-GCC_SUFFIX?=48
+GCC_SUFFIX?=8
 
 CC     := $(CROSS_COMPILE)gcc${GCC_SUFFIX}
 CXX    := $(CROSS_COMPILE)g++${GCC_SUFFIX}
@@ -114,7 +114,7 @@ debian_deps: /usr/include/microhttpd.h /usr/include/libudev.h
 
 clean:
 	rm -f ozwcp *.o
-	rm -rf $(OPENZWAVE)
+	${MAKE} -C ${OPENZWAVE} clean
 
 run: ozwcp
 	./ozwcp -p 5555

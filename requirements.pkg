@@ -1,5 +1,4 @@
 libmicrohttpd
 gmake
-gcc47
+gcc8
 libudev-devd
-
