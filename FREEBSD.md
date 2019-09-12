@@ -56,4 +56,5 @@ From jail console:
   - Gen5
 - FreeBSD 11.1-STABLE #0 r321665+de6be8c8d30(freenas/11.1-stable): Tue Feb 20 02:38:09 UTC 2018
   root@gauntlet:/freenas-11-releng/freenas/_BE/objs/freenas-11-releng/freenas/_BE/os/sys/FreeNAS.amd64 
+- ```FreeBSD hass-1 12.0-RELEASE FreeBSD 12.0-RELEASE r341666 GENERIC  amd64```
 
