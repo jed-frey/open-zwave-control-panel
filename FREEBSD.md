@@ -39,8 +39,8 @@ From jail console:
     # Change -j# to the number of cores on your machine.
     gmake -j8
 
-    cp -r open-zwave/config ./
-    ./ozwcp 
+    # Run
+    gmake run
 
 - Navigate to the jail IP (specified above) port 8090.
   - [http://ozw.local:8090](http://ozw.local:8090) if you have mDNS setup on your local machine.
